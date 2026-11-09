@@ -13,12 +13,13 @@ export default function Auth() {
   async function submit() {
     setLoading(true);
     setMsg("");
-    const { error } =
+    const { data, error } =
       mode === "masuk"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({ email, password });
     if (error) setMsg(error.message);
-    else if (mode === "daftar") setMsg("Akun dibuat. Cek email untuk konfirmasi jika diminta, lalu masuk.");
+    else if (mode === "daftar" && !data.session)
+      setMsg("Akun dibuat, tapi Supabase masih meminta konfirmasi email. Matikan 'Confirm email' di dashboard Supabase, lalu masuk.");
     setLoading(false);
   }
 
@@ -38,7 +39,7 @@ export default function Auth() {
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Password (minimal 6 karakter)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
